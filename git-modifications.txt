@@ -1,0 +1,11 @@
+shabik (3.5.0.1) first commit
+
+- the old project is removed.
+
+- this project is using JavaFX.
+
+- change packages names and structure
+
+- data are stored by serialization. (may improved to JSON in future)
+
+- Launch4j with gradle is used.

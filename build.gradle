@@ -1,0 +1,81 @@
+	/*only buildscript {} and other plugins {} blocks are allowed before plugins {} blocks, 
+	  no other statements are allowed
+	//this is for making exe file only*/	
+	plugins {
+		id 'edu.sc.seis.launch4j' version '2.3.0'
+	}
+
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+
+	repositories{
+		mavenLocal();
+		mavenCentral();	
+	}
+
+	dependencies{
+		
+		testCompile 'junit:junit:4.+'
+		
+		runtime 'mysql:mysql-connector-java:6.0.+' 	//MySQL
+		//runtime 'com.oracle:ojdbc14:10.+' 		//ORACLE
+		//runtime 'com.oracle:ojdbc14:10.2.0.4.0'
+		runtime 'org.xerial:sqlite-jdbc:3.8.+'		//SQLite
+		runtime 'org.postgresql:postgresql:42.0.0'		//Postgres
+		
+		runtime files ('data/csvjdbc-1.0-31.jar')	//CSV
+		runtime files ('data/ojdbc8.jar')	//ORACLE
+		//runtime 'cn.guoyukun.jdbc:db2jcc:1.4.+'	//DB2
+		runtime files ('data/db2jcc4.jar')	//DB2
+		runtime files ('data/db2jcc.jar')	//DB2
+	}
+
+	eclipse {
+		classpath {	
+		    //customizing the classes output directory:
+		    defaultOutputDir = file('build-eclipse')
+		
+		    //default settings for downloading sources and Javadoc:
+		    downloadSources = false
+		    downloadJavadoc = true
+		}
+	}
+	
+	apply plugin: 'application' //adds 'run' task	
+	mainClassName = 'sami.gui.Main'
+
+	apply plugin: 'distribution' //adds 'distZip' task	
+	version = '3.5.0.1' 
+
+	jar {
+    	manifest {
+    	 attributes(
+			'Class-Path': ".",
+    	 	'Implementation-Title': "Gradle",
+            'Implementation-Version': version,
+            'Main-Class': mainClassName)
+    	}
+	}
+
+	// launch4j: put all configuration of launch4j here 
+	createExe {
+		outputDir = "exe"
+		fileDescription	"Sami Terminal"
+		copyright = "All Copyright are recieved (c) 2016, Terminal is for connecting any Database Management System (DBMS) in order to submit any SQL."
+		companyName = "Sami"
+		 
+	    mainClassName = "frawla.terminal.gui.Main"
+	    icon = new File('src/main/resources/images/icon.ico').absolutePath
+		headerType = "gui" //no splash with console
+		splashFileName = new File('src/main/resources/images/splash.bmp').absolutePath
+		outfile	= project.name + '.exe'	
+		productName	= project.name 
+		internalName = project.name 
+
+		messagesStartupError "An error occurred while starting the application.\n" + "ÕœÀ Œÿ√ √À‰«¡  ‘€Ì· «·»—‰«„Ã" 
+		messagesBundledJreError "This application was configured to use a bundled Java Runtime Environment but the runtime is missing or corrupted.\n" + "Â–« «·»—‰«„Ã „’„„ ·ﬂÌ Ì⁄„·  Õ  »Ì∆… Ã«›« «· ‘€Ì·Ì…° Ì»œÊ √‰ «·Ã«›« €Ì— „ÊÃÊœ… «Ê „⁄ÿ·…"
+		messagesJreVersionError "This application requires a Java Runtime Environment\n" + "Œÿ√ ›Ì «’œ«— ‰”Œ… «·Ã«›« °  √ﬂœ „‰  À»Ì  «·‰”Œ… «·„ÿ·Ê»…"
+		messagesLauncherError "The registry refers to a nonexistent Java Runtime Environment installation or the runtime is corrupted.\n" + "«·Ã«›« €Ì— „”Ã·… »‘ﬂ· ’ÕÌÕ"
+		messagesInstanceAlreadyExists "An application instance is already running.\n" + "·«Ì„ﬂ‰ › Õ √ﬂÀ— „‰ ‰”Œ… ··»—‰«„Ã"
+		//see more: https://github.com/TheBoegl/gradle-launch4j
+	}

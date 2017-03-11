@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sami.gui.AboutController">
+   <children>
+      <ImageView fitHeight="101.0" fitWidth="125.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" style="-fx-background-color: red;">
+         <image>
+            <Image url="@images/icon.png" />
+         </image>
+      </ImageView>
+      <TextArea editable="false" layoutX="125.0" layoutY="8.0" prefHeight="230.0" prefWidth="467.0" text="Product Version&#10;Database Terminal 3.0&#10;&#10;Build Information&#10;Version: 3.0-b20, Changeset: 5cac093e5c1f&#10;Date: 2016-09-14 18:00&#10;&#10;Logging&#10;The default configuration stores logging output in a file named Terminal-3.0.log.&#10;The default file path is :&#10;C:\Users\sami\AppData\Local\Temp\scenebuilder-2.0.log&#10;&#10;Java needed version: 8b50 or later&#10;Operating System&#10;Windows 7, 8, 10 or later&#10;Applicable x86, x64" wrapText="true">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </TextArea>
+      <ImageView fitHeight="111.0" fitWidth="150.0" layoutX="-8.0" layoutY="115.0" pickOnBounds="true" preserveRatio="true" style="-fx-background-color: red;">
+         <image>
+            <Image url="@images/name.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>

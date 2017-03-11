@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<Settings>
+
+	<DBMS>
+		<name>DBMS</name>
+		<value>MySQL</value>
+	</DBMS>
+	<ClassName>
+		<name>ClassName</name>
+		<value>oracle.jdbc.driver.OracleDriver</value>
+	</ClassName>
+	<DatabaseName>
+		<name>DatabaseName</name>
+		<value>imvudb</value>
+	</DatabaseName>
+	<ServerName>
+		<name>ServerName</name>
+		<value>sami_alfattani.mysqlforfree.com</value>
+	</ServerName>
+	<PortNumber>
+		<name>PortNumber</name>
+		<value>3306</value>
+	</PortNumber>
+	<ServerUserName>
+		<name>ServerUserName</name>
+		<value>3306</value>
+	</ServerUserName>
+	<ServerPassword>
+		<name>ServerPassword</name>
+		<value>3306</value>
+	</ServerPassword>
+	<SID>
+		<name>SID</name>
+		<value>LDB1</value>
+	</SID>
+	<UserName>
+		<name>UserName</name>
+		<value>sami_alfattani</value>
+	</UserName>
+	<Password>
+		<name>Password</name>
+		<value>123456</value>
+	</Password>
+
+
+
+
+	<RecentUsedFile>
+		<name>RecentUsedFile</name>
+		<value>./sql/TENKTUP1</value>
+	</RecentUsedFile>
+
+	<InsertRec>
+		<name>InsertRec</name>
+		<value>
+INSERT INTO `IMVU_Chatt` 
+( `User_name`, `Avatar_name`, `Chatt`) VALUES
+( 'dfd', 'adf', 'dfa df adf ads fadf ');
+		</value>
+	</InsertRec>
+
+
+	<UpdateRec>
+		<name>UpdateRec</name>
+		<value>
+UPDATE 'imvudb'.'IMVU_Chatt' SET 
+`User_name` = 'looking46',
+`Avatar_name` = 'xxx' 
+`Chatt` = 'xxx' 
+WHERE `ID`=1;
+		</value>
+	</UpdateRec>
+
+
+	<DeleteRec>
+		<name>DeleteRec</name>
+		<value>
+DELETE FROM IMVU_Chatt WHERE `ID`=1;
+		</value>
+	</DeleteRec>
+
+	<CreateTable>
+		<name>CreateTable</name>
+		<value>
+CREATE TABLE IF NOT EXISTS `IMVU_Chatt` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `User_name` varchar(50) NOT NULL,
+  `Avatar_name` varchar(50) NOT NULL,
+  `Chatt` longtext NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=cp1256 AUTO_INCREMENT=1 ;
+		</value>
+	</CreateTable>
+
+
+	<ShowAllTables>
+		<name>ShowAllTables</name>
+		<value>
+SELECT table_name FROM information_schema.TABLES 
+WHERE `TABLE_SCHEMA` = 'sami_alfattani';
+		</value>
+	</ShowAllTables>
+
+	<LastText>
+		<name>LastText</name>
+		<value>#SELECT table_name FROM USER_TABLES #
+
+
+WHERE `TABLE_SCHEMA` = 'sami_alfattani';
+		
+#SHOW TABLES;#
+
+
+SELECT * FROM EMP#
+</value>
+	</LastText>
+
+</Settings>
