@@ -1,3 +1,3 @@
-shabik v3.6.0.1 add palantir plugin to Gradle
+shabik v3.6.2.0 gradle warpper
 
-- apply palantir to Gradle, it means now gradle will package using virsion number from git.
+- just add gradle wrapper.now you can use gradlew 

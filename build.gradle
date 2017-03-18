@@ -3,7 +3,7 @@
 	//this is for making exe file only*/	
 	plugins {
 		id 'edu.sc.seis.launch4j' version '2.3.0'
-	     id "com.palantir.git-version" version "0.6.0"
+	    id 'com.palantir.git-version' version '0.6.0'
 	}
 
 	apply plugin: 'java'
