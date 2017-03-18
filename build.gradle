@@ -13,7 +13,7 @@
 	version = '3.7.0.1' 
 
 	apply plugin: 'application' //adds 'run' task	
-	mainClassName = 'sami.gui.Main'
+	mainClassName = 'frawla.terminal.gui.Main'
 
 	repositories{
 		mavenLocal();
