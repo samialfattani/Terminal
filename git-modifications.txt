@@ -1,11 +1,3 @@
-shabik (3.5.0.1) first commit
+shabik v3.6.0.1 add palantir plugin to Gradle
 
-- the old project is removed.
-
-- this project is using JavaFX.
-
-- change packages names and structure
-
-- data are stored by serialization. (may improved to JSON in future)
-
-- Launch4j with gradle is used.
+- apply palantir to Gradle, it means now gradle will package using virsion number from git.

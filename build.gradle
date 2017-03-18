@@ -3,10 +3,17 @@
 	//this is for making exe file only*/	
 	plugins {
 		id 'edu.sc.seis.launch4j' version '2.3.0'
+	     id "com.palantir.git-version" version "0.6.0"
 	}
 
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
+
+	apply plugin: 'distribution' //adds 'distZip' task	
+	version = '3.7.0.1' 
+
+	apply plugin: 'application' //adds 'run' task	
+	mainClassName = 'sami.gui.Main'
 
 	repositories{
 		mavenLocal();
@@ -41,12 +48,8 @@
 		}
 	}
 	
-	apply plugin: 'application' //adds 'run' task	
-	mainClassName = 'sami.gui.Main'
 
-	apply plugin: 'distribution' //adds 'distZip' task	
-	version = '3.5.0.1' 
-
+/*
 	jar {
     	manifest {
     	 attributes(
@@ -56,6 +59,7 @@
             'Main-Class': mainClassName)
     	}
 	}
+*/
 
 	// launch4j: put all configuration of launch4j here 
 	createExe {
