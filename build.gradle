@@ -10,7 +10,8 @@
 	apply plugin: 'eclipse'
 
 	apply plugin: 'distribution' //adds 'distZip' task	
-	version = '3.7.0.1' 
+	//version = '3.7.0.1' 
+	version = gitVersion()
 
 	apply plugin: 'application' //adds 'run' task	
 	mainClassName = 'frawla.terminal.gui.Main'
@@ -47,25 +48,12 @@
 		    downloadJavadoc = true
 		}
 	}
-	
-
-/*
-	jar {
-    	manifest {
-    	 attributes(
-			'Class-Path': ".",
-    	 	'Implementation-Title': "Gradle",
-            'Implementation-Version': version,
-            'Main-Class': mainClassName)
-    	}
-	}
-*/
 
 	// launch4j: put all configuration of launch4j here 
 	createExe {
-		outputDir = "exe"
-		fileDescription	"Sami Terminal"
-		copyright = "All Copyright are recieved (c) 2016, Terminal is for connecting any Database Management System (DBMS) in order to submit any SQL."
+		outputDir = "../exe"
+		fileDescription	"Sami Terminal, Terminal is for connecting any Database Management System (DBMS) in order to submit any SQL."
+		copyright = "All Copyright are recieved (c) 2016 "
 		companyName = "Sami"
 		 
 	    mainClassName = "frawla.terminal.gui.Main"

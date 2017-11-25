@@ -382,21 +382,6 @@ public class TerminalController implements Initializable
 				String colName = rs.getMetaData().getColumnName(i+1);
 				TableColumn<ObservableList<String>, String> col = new TableColumn<>(colName);
 				
-			
-//				class FieldCallBack implements Callback<CellDataFeatures<ObservableList<String>,String> , ObservableValue<String>>
-//				{
-//					@Override
-//					public ObservableValue<String> call(CellDataFeatures<ObservableList<String>, String> param)
-//				}
-//				class FieldCallBack implements Callback<CellDataFeatures<ObservableList<String>,String> , ObservableValue<String>>
-//				{
-//					@Override
-//					public ObservableValue<String> call(CellDataFeatures<ObservableList<String>, String> param)
-//					{
-//						return new SimpleStringProperty(param.getValue().get(j).toString());                        
-//					}
-//				}
-				
 				col.setCellValueFactory( p -> 
 				{
 					return new SimpleStringProperty(p.getValue().get(j).toString());                        
@@ -409,7 +394,9 @@ public class TerminalController implements Initializable
 			/********************************
 			 * Data added to ObservableList *
 			 ********************************/
-			rs.beforeFirst(); //remove this if RS is Foraward Only.  
+			//rs.beforeFirst(); //remove this if RS is Foraward Only.
+			connector.get().refreshAllRecords(sql);
+			rs = connector.get().getResultSet().get();
 			while(rs.next())
 			{
 				//Iterate Row

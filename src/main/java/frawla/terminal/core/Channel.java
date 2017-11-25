@@ -108,7 +108,7 @@ public class Channel implements Externalizable
 		samples.put(DBMS_MYSQL, "jdbc:mysql://192.168.1.20:3306/dbtest?&useUnicode=true&characterEncoding=UTF-8");
 		samples.put(DBMS_ORACLE, "jdbc:oracle:thin:@oraxe:1521:XE");
 		samples.put(DBMS_DB2, "jdbc:db2://192.168.11.6/PERSONNEL");
-		samples.put(DBMS_SQLITE, "not available!");
+		samples.put(DBMS_SQLITE, "jdbc:sqlite:data/company.db");
 		samples.put(DBMS_MSACCESS, "not available!");
 		samples.put(DBMS_SQLSERVER, "jdbc:jtds:sqlserver://samipc:1433/db2");
 		samples.put(DBMS_CSV, "not available!");

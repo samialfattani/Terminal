@@ -1,3 +1,5 @@
-shabik v3.6.2.0 gradle warpper
+shabik v3.6.4.0 fix Lunch4j settings
 
-- just add gradle wrapper.now you can use gradlew 
+- Let Lunch4j to make the exe folder in the project folder.
+- fix bugs of FORWARD_ONLY mode. now you can connect to SQLite or any other DBMS of FORWARD_ONLY.
+- postgreSQL is added and tested.

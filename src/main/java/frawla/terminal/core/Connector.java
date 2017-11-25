@@ -163,9 +163,9 @@ public class Connector
             	if(channel.getDBMS().equals(Channel.DBMS_SQLITE))
             		stmt = con.get().createStatement() ;
             	else
-				stmt = con.get().createStatement( 
-						ResultSet.TYPE_SCROLL_SENSITIVE, 
-						ResultSet.CONCUR_UPDATABLE ) ;
+					stmt = con.get().createStatement( 
+							ResultSet.TYPE_SCROLL_SENSITIVE, 
+							ResultSet.CONCUR_UPDATABLE ) ;
 
                 myRow = rs.getRow();
         		myRow = (myRow == 0)? 1 : myRow;
