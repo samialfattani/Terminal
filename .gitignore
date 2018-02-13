@@ -1,0 +1,10 @@
+.settings
+.gradle
+build
+build-eclipse
+bin
+exe
+.classpath
+.project
+*.lnk
+git-modifications.txt
