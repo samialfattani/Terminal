@@ -1,9 +1,7 @@
-shabik v3.7.0.0 fix many Refactoring issues
+-- THIS FILE WILL BE IGNORED IN GIT --
 
-- fix reading null values from Database.
-- fix FX controller, no more special class for Stage() and Scene Configuration. now all these config can be done inside initialize() method of the FXController.
-- in TerminalController, refactor all complex methods and make more simple.
-- add Util.getRsourceAsURL()
-- IMPORTANT: fix the bug of refreshAllRecords() so that rs is re-assigened correctly.
-- IMPORTANT: now it can accept BLOB data, but currently it just replace it with "X". 
-- IMPORTANT: now record count is retrieved the actual value even if the DBMS is TYPE_FORWARD_ONLY, then an sql "select count(*) from..." is sent to get the actual value.
+shabik v3.7.0.1 just edit README.md
+
+- this file must have Unix end of line (EOL) style.
+- modify .gitignore
+- make sure /exe is ignored in GIT

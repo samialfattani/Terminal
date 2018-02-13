@@ -1,4 +1,4 @@
-#Terminal
+###Terminal
 This is a project allows you to connect to any Database using JDBC. You are enabled to use any SQL statement including DML, DDL, and DCL. It has been tested on MySQL, SQLite, PostgreSQL, ORACLE.
 
 #Usage
@@ -9,6 +9,7 @@ $ gradle eclipse
 ```
  
 #Try it out!
+you can build and start the App directly using:
 ```
 $ gradle run
 ```
