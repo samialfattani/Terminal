@@ -1,7 +1,9 @@
 -- THIS FILE WILL BE IGNORED IN GIT --
 
-shabik v3.7.0.1 just edit README.md
+shabik v3.7.0.3 another README.md modification  
 
-- this file must have Unix end of line (EOL) style.
-- modify .gitignore
-- make sure /exe is ignored in GIT
+- this time I have used the add-on of VSCode
+	* Open VSCode
+	* install add-on of "Markdown Preview Github Styling"
+	* edit the file and preview using [Ctrl+K V]
+	* this is much better than Eclipse.
