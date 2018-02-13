@@ -26,16 +26,19 @@
 		testCompile 'junit:junit:4.+'
 		
 		runtime 'mysql:mysql-connector-java:6.0.+' 	//MySQL
-		//runtime 'com.oracle:ojdbc14:10.+' 		//ORACLE
-		//runtime 'com.oracle:ojdbc14:10.2.0.4.0'
 		runtime 'org.xerial:sqlite-jdbc:3.+'		//SQLite
 		runtime 'org.postgresql:postgresql:42.+'	//Postgres (Jan 25, 2018)
 		
 		runtime files ('data/csvjdbc-1.0-31.jar')	//CSV
-		runtime files ('data/ojdbc8.jar')	//ORACLE
-		//runtime 'cn.guoyukun.jdbc:db2jcc:1.4.+'	//DB2
-		runtime files ('data/db2jcc4.jar')	//DB2
-		runtime files ('data/db2jcc.jar')	//DB2
+		
+		// get the last version from here:
+		//http://www.oracle.com/technetwork/database/features/jdbc/index-091264.html
+		runtime files ('data/ojdbc8.jar')	//ORACLE - 12c
+
+		// get the last version from here:
+		// 	http://www-01.ibm.com/support/docview.wss?uid=swg21363866
+		runtime files ('data/db2jcc.jar')	//DB2 JDBC 3 specification
+		runtime files ('data/db2jcc4.jar')	//DB2 JDBC 4 specification
 	}
 
 	eclipse {
