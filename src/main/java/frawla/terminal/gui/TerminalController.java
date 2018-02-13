@@ -102,9 +102,9 @@ public class TerminalController implements Initializable
         
         //--------------------
 //        Automated ********
-        OpenFile(new File("data/sql.sql"));
-        cmbConnections.getSelectionModel().select(2);
-        cmbConnections_itemSelected();
+//        OpenFile(new File("data/sql.sql"));
+//        cmbConnections.getSelectionModel().select(2);
+//        cmbConnections_itemSelected();
 	}//initialize
 
 	private void scene_OnDragDropped(DragEvent event)
