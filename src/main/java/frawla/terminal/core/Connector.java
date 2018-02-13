@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.util.Optional;
 
 // import org.hsqldb.jdbcDriver;
@@ -15,14 +15,14 @@ public class Connector
     private Optional<Connection> con;
     private Optional<ResultSet> rs;
     private Channel channel ;
-    private final String QUERY = "SELECT * from IMVU_Chatt";
+    private String QUERY = "SELECT * from IMVU_Chatt";
 
     public Connector(Channel ch)
     {
     	channel = ch;
         try
         {
-        	Class.forName(ch.getDriverClassName());
+        	Class.forName(channel.getDriverClassName());
         	con = Optional.ofNullable(DriverManager.getConnection(
 					        			ch.getConnectionString(), 
 					        			ch.getUserName(),
@@ -42,19 +42,23 @@ public class Connector
     }//end of constructor
 
     
-    public PreparedStatement createPreparedStatement(String sqlStatement)
+    public Connection getConnection(){ return con.get(); }
+    public Optional<ResultSet> getResultSet(){ return rs; }
+    public String getQeury(){ return QUERY; }
+
+	private PreparedStatement createPreparedStatement(String sql)
     {
     	PreparedStatement pstmt = null;
 		try
 		{
 			 
-        	if(channel.getDBMS().equals(Channel.DBMS_SQLITE))
-        		pstmt = con.get().prepareStatement(sqlStatement );
-        	else
+        	if( isScrollableDBMS() )
         		pstmt = con.get().prepareStatement(
-        			sqlStatement,  
-					ResultSet.TYPE_SCROLL_SENSITIVE, 
-					ResultSet.CONCUR_UPDATABLE ) ;
+            			sql,  
+    					ResultSet.TYPE_SCROLL_SENSITIVE, 
+    					ResultSet.CONCUR_UPDATABLE ) ;
+        	else
+        		pstmt = con.get().prepareStatement(sql );
 		}
 		catch (SQLException e)
 		{
@@ -65,10 +69,6 @@ public class Connector
     
     //===============================================================================
 
-    public Connection getConnection()
-    {
-        return con.get();
-    }
 
     public void goNext()
     {
@@ -99,22 +99,70 @@ public class Connector
     	});
     }
 
-    public String getValue(String fieldName)
+    public String getValue(int i)
     {
-        String s = "";
+        if(!rs.isPresent())
+        	return "";
+        
+    	String res = "";
+        
         try{
             if (rs.get().getRow() == 0)//no current row
-                return "";
-            s = rs.get().getString( fieldName );
+                res = "";
+			
+            switch( rs.get().getMetaData().getColumnType(i) ) 
+			{
+				//case Types.NUMERIC: res = rs.getDouble(i) + ""; break;
+				case Types.CLOB:
+				case Types.BLOB: 
+					res = "X"; break;
+				default: 
+					res = rs.get().getString(i); break;
+			}
+
         }
         catch (SQLException e){
         	Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
         }
-        return s;
+    		
+    	return res;
     }
 
-    public int executeDDLorDML(PreparedStatement pstmt)
+    public String getValue(String colName)
     {
+    	try {
+    		for (int j=1; j <= rs.get().getMetaData().getColumnCount() ; j++)
+			{
+				if( colName.equals(rs.get().getMetaData().getColumnName(j)) )
+					return getValue(j);
+			}
+    		Util.showError("--- Sami-Terminal: Column's Name is not correct.\n" );
+    	}
+    	catch (SQLException e){
+    		Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
+    	}
+		return "";
+    }
+
+    public void Delete()
+    {
+    	rs.ifPresent(rs -> 
+    	{
+            try{
+                rs.deleteRow();
+            }
+            catch (SQLException e){
+            	Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
+            }
+    		
+    	});
+    }
+
+    public int executeDDLorDML(String sql)
+    {
+    	QUERY = sql;
+    	PreparedStatement pstmt = createPreparedStatement(sql);
+    	
     	int c = 0;
         try
         {
@@ -132,20 +180,6 @@ public class Connector
         return c;
     }
 
-    public void Delete()
-    {
-    	rs.ifPresent(rs -> 
-    	{
-            try{
-                rs.deleteRow();
-            }
-            catch (SQLException e){
-            	Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
-            }
-    		
-    	});
-    }
-
     public void refreshAllRecords()
     {
         refreshAllRecords( QUERY );
@@ -153,57 +187,65 @@ public class Connector
 
     public void refreshAllRecords(String qry)
     {
+    	QUERY = qry;
+    	if(rs == null)
+    		return;
     	
-        rs.ifPresent(rs -> 
-    	{
-            int myRow = 0;
-            try
-            {
-            	Statement stmt ;
-            	if(channel.getDBMS().equals(Channel.DBMS_SQLITE))
-            		stmt = con.get().createStatement() ;
-            	else
-					stmt = con.get().createStatement( 
-							ResultSet.TYPE_SCROLL_SENSITIVE, 
-							ResultSet.CONCUR_UPDATABLE ) ;
+    	ResultSet rs = this.rs.get();
+        int myRow = 0;
+        try
+        {
+            myRow = rs.getRow();
 
-                myRow = rs.getRow();
-        		myRow = (myRow == 0)? 1 : myRow;
-        		
-                rs = stmt.executeQuery( qry );
+    		//PreparedStatement pstmt  = createPreparedStatement(QUERY);
 
-                if (myRow <= getRecordCount() )
-                	rs.absolute( myRow );
-                else if (getRecordCount() >= 1)
-                	rs.absolute( 1 );
-                
-                stmt.close();
-            }		
-            catch (SQLException e)
-            {
-            	Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
-            }
-    	});
+    		executeDDLorDML(QUERY); //this.rs is updated!!
+            //this.rs = Optional.ofNullable( pstmt.executeQuery(QUERY) );
+            rs = this.rs.get();
+            
+            if( !isScrollableDBMS() )
+            	return; 
+            
+            if (myRow > 0 && myRow < getRecordCount() )
+            	rs.absolute( myRow );
+            else
+            	rs.absolute( 0 );
+            
+        }		
+        catch (SQLException e)
+        {
+        	Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
+        }
     }
 
     public int getRecordCount()
     {
-        int c = 0;
-        if(channel.getDBMS().equals(Channel.DBMS_SQLITE))
-        {
-        	return 0; //becuse this DBMS supports only TYPE_FORWARD_ONLY
-        }
+        int count = 0;
+        
         try
         {
-            rs.get().last();
-            c = rs.get().getRow();
+        	//becuse this DBMS supports TYPE_FORWARD_ONLY
+            if( isScrollableDBMS() )
+            {
+	            rs.get().last();
+	            count = rs.get().getRow();
+            }
+            else
+            {
+            	String q = "Select count(*) from ( " + QUERY + " )";
+            	ResultSet r = createPreparedStatement(q).executeQuery();
+            	if(r.next())
+            		count = r.getInt(1);
+            }
         }
         catch (SQLException e)
         {
         	Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );
         }
-        return c;
+        return count;
     }
+
+
 
     public void close()
     {
@@ -221,10 +263,6 @@ public class Connector
     }
 
 
-	public Optional<ResultSet> getResultSet()
-	{
-		return rs;
-	}
 
 
 	public boolean isValid(int timeOut)
@@ -235,6 +273,13 @@ public class Connector
 		}
 		catch (SQLException e){Util.showError(e, "--- SQL Exception: " + e.getMessage() + "\n" );}
 		return false;
+	}
+
+	//if not then the DBMS is TYPE_FORWARD_ONLY
+	private boolean isScrollableDBMS() throws SQLException
+	{
+		return con.get().getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE) ||
+			   con.get().getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE);
 	}
 
 }// end of class Connector 

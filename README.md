@@ -8,13 +8,16 @@ $ git clone
 $ gradle eclipse
 ```
  
-#Build and Try it out!
-Using [Gradle](https://gradle.org/) I have included Launch4J tool in order to build *.exe file so you can try it. use the following command (it is working on Windows only):
+#Try it out!
 ```
 $ gradle run
-or
+```
+
+#Build *.EXE and Try it out!
+Using [Gradle](https://gradle.org/) I have included Launch4J tool in order to build *.exe file so you can try it. use the following command (it is working on Windows only):
+```
 $ gradle createExe
-\# Now you can find the executable file in 'build/exe/Terminal.exe'
+\# Now you can find the executable file in '/exe/Terminal.exe'
 ```
  
  

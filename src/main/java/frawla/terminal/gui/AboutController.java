@@ -1,47 +1,38 @@
 package frawla.terminal.gui;
 
-import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 import frawla.terminal.core.Util;
-import javafx.fxml.FXMLLoader;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-class About
+public class AboutController implements Initializable
 {
-	private FXMLLoader fxmlLoader;
-	private AboutController myController;
+	@FXML private Pane PanRoot;
 	
-
-	public About(){		
-		try
-		{
-			fxmlLoader = new FXMLLoader(Util.getResource("About.fxml").toURL());			
-
-			AnchorPane root = (AnchorPane) fxmlLoader.load();
-			myController = (AboutController) fxmlLoader.getController();
-
+	@Override
+	public void initialize(URL location, ResourceBundle resources)
+	{
+		//to be executed after initialize()
+		Platform.runLater(() -> {
 			Stage window = new Stage( );
-			window.setScene(new Scene(root, 600, 250));
-			window.getIcons().add(new Image(Util.getResource("images/icon.png").toString() ));
+			Scene scene = new Scene(PanRoot, PanRoot.getPrefWidth(), PanRoot.getPrefHeight());
+			window.setScene(scene);
+
+			window.getIcons().add(new Image( Util.getResource("images/icon.png").toString() ));
 			window.setTitle("About");
-			//window.setOnCloseRequest(event -> myController.close() );
+			//window.setOnCloseRequest(event -> System.exit(0) );
 			window.setResizable(false);
 			window.show();
-		}
-		catch (IOException e){
-			Util.showError(e, e.getMessage());
-		}            
-	}
+			
+		});        
 
-	public AboutController getMyController(){
-		return myController;
-	}
-}
 
-public class AboutController
-{
-	
+	}
 }

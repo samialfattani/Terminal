@@ -2,7 +2,7 @@
 	  no other statements are allowed
 	//this is for making exe file only*/	
 	plugins {
-		id 'edu.sc.seis.launch4j' version '2.3.0'
+		id 'edu.sc.seis.launch4j' version '2.4.3'
 	    id 'com.palantir.git-version' version '0.6.0'
 	}
 
@@ -28,8 +28,8 @@
 		runtime 'mysql:mysql-connector-java:6.0.+' 	//MySQL
 		//runtime 'com.oracle:ojdbc14:10.+' 		//ORACLE
 		//runtime 'com.oracle:ojdbc14:10.2.0.4.0'
-		runtime 'org.xerial:sqlite-jdbc:3.8.+'		//SQLite
-		runtime 'org.postgresql:postgresql:42.0.0'		//Postgres
+		runtime 'org.xerial:sqlite-jdbc:3.+'		//SQLite
+		runtime 'org.postgresql:postgresql:42.+'	//Postgres (Jan 25, 2018)
 		
 		runtime files ('data/csvjdbc-1.0-31.jar')	//CSV
 		runtime files ('data/ojdbc8.jar')	//ORACLE
@@ -53,7 +53,7 @@
 	createExe {
 		outputDir = "../exe"
 		fileDescription	"Sami Terminal, Terminal is for connecting any Database Management System (DBMS) in order to submit any SQL."
-		copyright = "All Copyright are recieved (c) 2016 "
+		copyright = "All Copyright are recieved (c) 2016~2018 "
 		companyName = "Sami"
 		 
 	    mainClassName = "frawla.terminal.gui.Main"

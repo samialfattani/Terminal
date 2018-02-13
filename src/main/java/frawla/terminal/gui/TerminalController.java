@@ -3,7 +3,6 @@ package frawla.terminal.gui;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,102 +16,40 @@ import frawla.terminal.core.Channel;
 import frawla.terminal.core.Connector;
 import frawla.terminal.core.RecentFile;
 import frawla.terminal.core.Util;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableStringValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.StringConverter;
-
-
-class Terminal
-{
-	private FXMLLoader fxmlLoader;
-	private TerminalController myController;
-	
-
-	public Terminal(){		
-		try
-		{
-			fxmlLoader = new FXMLLoader(Util.getResource("Terminal.fxml").toURL());			
-
-			Parent root = (Parent) fxmlLoader.load();
-			myController = (TerminalController) fxmlLoader.getController();
-
-			Stage window = new Stage( );
-			Scene scene = new Scene(root, 700,600);
-			window.setScene(scene);
-			window.getIcons().add(new Image(Util.getResource("images/icon.png").toString() ));
-			window.setTitle("Terminal");
-			window.setOnCloseRequest(event -> System.exit(0) );
-			window.show();
-			
-			scene.setOnDragOver( event -> 
-			{
-                Dragboard db = event.getDragboard();
-                if (db.hasFiles())
-                    event.acceptTransferModes(TransferMode.COPY);
-                else
-                    event.consume();
-	        });
-	        
-	        // Dropping over surface
-	        scene.setOnDragDropped( event -> 
-	        {
-                Dragboard db = event.getDragboard();
-                boolean success = false;
-                if (db.hasFiles()) {
-                    success = true;
-                    for (File file : db.getFiles()) {
-                    	myController.OpenFile(file);
-                        System.out.println(file.getAbsolutePath());
-                    }
-                }
-                event.setDropCompleted(success);
-                event.consume();
-	        });
-			
-		}
-		catch (IOException e){
-			Util.showError(e, e.getMessage());
-		}            
-	}
-
-	public TerminalController getMyController(){
-		return myController;
-	}
-}
 
 public class TerminalController implements Initializable
 {
+	@FXML private Pane PanRoot;
 	@FXML private TextArea txtSQL;
 	@FXML private TextArea txtLog;
 	@FXML private Label lblFileName;
@@ -121,97 +58,93 @@ public class TerminalController implements Initializable
 	@FXML private Menu mnuRecent;
 	
 	private StringProperty myFileName = new SimpleStringProperty(this,"" ,"<null>");
-	private Optional<Connector> connector = Optional.ofNullable(null);
+	private Connector connector = null;
 	private LinkedHashSet<RecentFile> recentFiles = new LinkedHashSet<>();
 
 	/* Listener as a private member so that it can be removed.*/
-	private ChangeListener<String> myListener = new ChangeListener<String>()
+	private ChangeListener<String> txtSQLOnChange = (ov, oldv, newv) ->
 	{
-		@Override
-		public void changed(ObservableValue<? extends String> ov, String oldv, String newv)
-		{
-			txtSQL_textChanged();
-		}
+		txtSQL_textChanged();
 	};
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		//to be executed after initialize()
+		Platform.runLater(() -> {
+			Stage window = new Stage( );
+			Scene scene = new Scene(PanRoot, PanRoot.getPrefWidth(), PanRoot.getPrefHeight());
+			window.setScene(scene);
+
+			window.getIcons().add(new Image( Util.getResource("images/icon.png").toString() ));
+			window.setTitle("Terminal");
+			window.setOnCloseRequest(event -> System.exit(0) );
+			window.show();
+			
+			scene.setOnDragOver( event -> scene_OnDragOver(event) );
+	        scene.setOnDragDropped( event -> scene_OnDragDropped(event) );
+		});        
+
 		lblFileName.textProperty().bind( myFileName );
 
 		loadRecentFilesIntoMenu();
 		
-		if (Util.CONNECTION_FILE.exists())
-		{
-			ArrayList<Channel> myList = (ArrayList<Channel>) Util.readFileAsObject(Util.CONNECTION_FILE); 
-			cmbConnections
-				.getItems()
-				.setAll( FXCollections.observableList(myList) );
-		}
+		ArrayList<Channel> myList = loadConnectionList();
+		cmbConnections
+			.getItems()
+			.setAll( FXCollections.observableList( myList) );
 		
-		cmbConnections.setCellFactory(p -> {
-            return new ListCell<Channel>()
-            {
-            	@Override
-            	protected void updateItem(Channel item, boolean empty)
-            	{
-            		super.updateItem(item, empty);
-            		setText( (item == null)?"":item.getName() );
-            	}
-            };
-         });
-		
-		/* Convert Object to String and String to Object. */
-		cmbConnections.setConverter(new StringConverter<Channel>()
-		{
-			@Override
-			public String toString(Channel ch)
-			{
-				if(ch == null) 
-					return null;
-				return ch.getName();
-			}
-			
-			//this is useful in case if ComboBox is Editable.
-			@Override
-			public Channel fromString(String str)
-			{
-				//looking for an object by String.
-			    return null;
-			}
-		});
+		cmbConnectionSetup();
 		
 		
-		/*Append to the popup menu*/
-        TextAreaSkin customContextSkin = new TextAreaSkin(txtSQL) {
-            @Override
-            public void populateContextMenu(ContextMenu contextMenu) {
-                super.populateContextMenu(contextMenu);
-                contextMenu.getItems().add(0, new SeparatorMenuItem());
-                MenuItem mntmRun = new MenuItem("Run");
-                mntmRun.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
-                mntmRun.setOnAction( (e) -> mntmRun_click() );
-                contextMenu.getItems().add(0, mntmRun);
-            }
-        };
-        txtSQL.setSkin(customContextSkin);
-        txtSQL.textProperty().addListener(myListener);
+		appendRunItemToTheOriginalPopupMenuOfTxtSQL();
+        txtSQL.textProperty().addListener(txtSQLOnChange);
         
-
+        //--------------------
+//        Automated ********
+        OpenFile(new File("data/sql.sql"));
+        cmbConnections.getSelectionModel().select(2);
+        cmbConnections_itemSelected();
 	}//initialize
+
+	private void scene_OnDragDropped(DragEvent event)
+	{
+		Dragboard db = event.getDragboard();
+		boolean success = false;
+		if (db.hasFiles()) {
+		    success = true;
+		    for (File file : db.getFiles()) {
+		    	OpenFile(file);
+		        System.out.println(file.getAbsolutePath());
+		    }
+		}
+		event.setDropCompleted(success);
+		event.consume();
+	}
+
+	// Dropping over surface
+	private void scene_OnDragOver(DragEvent event)
+	{
+		Dragboard db = event.getDragboard();
+		if (db.hasFiles())
+		    event.acceptTransferModes(TransferMode.COPY);
+		else
+		    event.consume();
+	}
 
 	public void mnuOpen_click()
 	{
+		
 		Util.getFileChooserForOpen()
 			.ifPresent((f) -> 
 			{				
-				txtSQL.textProperty().removeListener(myListener);
+				txtSQL.textProperty().removeListener(txtSQLOnChange);
 				OpenFile(f);
 				
 				recentFiles.add(new RecentFile(f.getAbsolutePath(), recentFiles.size()+1 ));
 				Util.Save(recentFiles, Util.RECENT_FILES_LIST_FILE);
 				loadRecentFilesIntoMenu();
-				txtSQL.textProperty().addListener(myListener);
+				txtSQL.textProperty().addListener(txtSQLOnChange);
 			});
 	}
 
@@ -223,6 +156,7 @@ public class TerminalController implements Initializable
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	private void loadRecentFilesIntoMenu()
 	{
 		if (Util.RECENT_FILES_LIST_FILE.exists())
@@ -240,6 +174,48 @@ public class TerminalController implements Initializable
 		}
 	}//loadRecentFilesIntoMenu
 
+	//**********************************************
+	
+	public void cmbConnections_itemSelected()
+	{
+		connector = new Connector( cmbConnections.getValue() );
+		if (connector.isValid(3)){
+			log("Connected Sucessfully :) to:\n\t" + 
+				cmbConnections.getSelectionModel().getSelectedItem().getConnectionString() );
+		}
+		
+	}
+	
+	
+	public void cmbConnections_mouseClick()
+	{
+		ArrayList<Channel> myList = loadConnectionList();		
+		cmbConnections
+			.getItems()
+			.setAll( FXCollections.observableList(myList) );
+	}
+	
+	public void btnEdit_click()
+	{
+		try
+		{
+			FXMLLoader fxmlLoader = new FXMLLoader(Util.getResourceAsURL("Channels.fxml"));			
+			fxmlLoader.load();
+		}
+		catch (IOException e)
+		{
+			Util.showError(e, e.getMessage());
+		}
+	}
+	
+	public void txtSQL_textChanged(){
+		File f = new File (myFileName.get());
+		if( f.exists() )
+			lblFileName.setStyle("-fx-border-color:red; -fx-background-color: pink;");
+	}
+
+	//-------------------------------------------- 
+	
 	public void mnuSave_click()
 	{
 		File f = new File(myFileName.get()) ;
@@ -263,42 +239,6 @@ public class TerminalController implements Initializable
 		System.exit(0);
 	}
 
-	public void btnEdit_click()
-	{
-		new Channels();
-	}
-	
-	public void txtSQL_textChanged(){
-		File f = new File (myFileName.get());
-		if( f.exists() )
-			lblFileName.setStyle("-fx-border-color:red; -fx-background-color: pink;");
-	}
-	
-	//**********************************************
-	
-	public void cmbConnections_itemSelected()
-	{
-		Connector cn = new Connector( cmbConnections.getValue() );
-		if (cn.isValid(3)){
-			log("Connected Sucessfully :) to:\n" + 
-				cmbConnections.getSelectionModel().getSelectedItem().getConnectionString() );
-		}
-		
-		connector = Optional.ofNullable(cn);
-	}
-	
-	
-	public void cmbConnections_mouseClick()
-	{
-		if (Util.CONNECTION_FILE.exists())
-		{
-			ArrayList<Channel> myList = (ArrayList<Channel>) Util.readFileAsObject(Util.CONNECTION_FILE); 
-			cmbConnections
-				.getItems()
-				.setAll( FXCollections.observableList(myList) );
-		}
-	}
-
 	public void mntmRunCurr_click(){
 		mntmRun_click();
 	}
@@ -318,51 +258,43 @@ public class TerminalController implements Initializable
 	protected void mntmRun_click()
 	{
 		int crt = txtSQL.getCaretPosition()+1;
-		String[] SQLs = txtSQL.getText().split(";");
-		int total = 0;
-		int i=0;
-		//int count = StringUtils.countMatches(txtSQL.getText(), ";");
-		for(; i<SQLs.length; i++)
-		{
-			total += SQLs[i].length()+1; 
-			if(total >= crt)
-				break;
-		}
-		
-		String sql = SQLs[i].trim();
+		String sql = getCommandTahtArroundTheCoursor(crt);
 		runSQL(sql);
+	}
+
+	//------------- CORE METHODS -----------------
+	
+	private ArrayList<Channel> loadConnectionList()
+	{
+		@SuppressWarnings("unchecked")
+		ArrayList<Channel> myList = (ArrayList<Channel>) Util.readFileAsObject(Util.CONNECTION_FILE);
+		myList = Optional.ofNullable(myList)
+						 .orElse(new ArrayList<Channel>());
+		return myList;
 	}
 
 	private void runSQL(final String sql)
 	{
-		int indexOfSql = txtSQL.getText().indexOf(sql);
-		txtSQL.selectRange(indexOfSql, indexOfSql + sql.length());
+		selectThisInTheTxtSQL(sql);
 		
-		connector.ifPresent( connector -> 
-		{
-			System.out.println("Running: -"+sql+"-");
-			buildData(sql);
-		});
+		if (connector == null)
+			return;
 		
-		
+		System.out.println("Running: -"+sql+"-");
+		buildData(sql);
+
 	}
 
-	private void log(String str)
-	{
-		String fDate = Util.MY_TIME_FORMAT.format(new Date());
-		txtLog.appendText(  fDate + ": " + str + "\n");	
-	}
-	
 	public boolean buildData(String sql)
 	{
-		if(!connector.isPresent())
+		if (connector == null)
 		{
 			Util.showError("Database is not connected");
 			return false;
 		}
 		
-		PreparedStatement pstmt = connector.get().createPreparedStatement(sql);
-		int c = connector.get().executeDDLorDML(pstmt);
+		
+		int c = connector.executeDDLorDML(sql);
 		log( c + " Rows is selected.");
 		
 		tblResult.getColumns().clear();
@@ -370,10 +302,10 @@ public class TerminalController implements Initializable
 
 		try
 		{
-			ResultSet rs = connector.get().getResultSet().get();
+			ResultSet rs = connector.getResultSet().get();
 
 			/**********************************
-			 * TABLE COLUMN ADDED DYNAMICALLY *
+			 * ADD COLUMNS DYNAMICALLY 			
 			 **********************************/
 			for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++)
 			{
@@ -382,29 +314,34 @@ public class TerminalController implements Initializable
 				String colName = rs.getMetaData().getColumnName(i+1);
 				TableColumn<ObservableList<String>, String> col = new TableColumn<>(colName);
 				
-				col.setCellValueFactory( p -> 
+				col.setCellValueFactory( myData -> 
 				{
-					return new SimpleStringProperty(p.getValue().get(j).toString());                        
+					//register the each row-index in the col.
+					String v = Optional.ofNullable( myData.getValue().get(j) )
+									   .orElse("");
+					return new SimpleStringProperty(v);                        
 				});
 
-				tblResult.getColumns().addAll(col); 
-				//System.out.println("Column ["+i+"] ");
+				tblResult.getColumns().add(col); 
 			}
 
 			/********************************
 			 * Data added to ObservableList *
 			 ********************************/
 			//rs.beforeFirst(); //remove this if RS is Foraward Only.
-			connector.get().refreshAllRecords(sql);
-			rs = connector.get().getResultSet().get();
-			while(rs.next())
+			connector.refreshAllRecords(sql);
+			rs = connector.getResultSet().get();
+
+			while(rs.next() )
 			{
 				//Iterate Row
 				ObservableList<String> row = FXCollections.observableArrayList();
 				for(int i=1 ; i<=rs.getMetaData().getColumnCount(); i++)
 				{
-					row.add(rs.getString(i));
+					row.add( connector.getValue(i) );
+					//System.out.print(i + ", ");
 				}
+				
 				//System.out.println("Row [1] added "+row );
 				data.add(row);
 			}
@@ -418,8 +355,104 @@ public class TerminalController implements Initializable
 		return true;
 	}
 	
-	public void mnuAbout_click(){
-		new About();
+	public void mnuAbout_click()
+	{
+		try
+		{
+			FXMLLoader fxmlLoader = new FXMLLoader(Util.getResourceAsURL("About.fxml"));			
+			fxmlLoader.load();
+		}
+		catch (IOException e)
+		{
+			Util.showError(e, e.getMessage());
+		}
 	}
 
-}
+
+	//----------------- OTHERS -----------------------------
+	
+	private void log(String str)
+	{
+		String fDate = Util.MY_TIME_FORMAT.format(new Date());
+		txtLog.appendText(  fDate + ": " + str + "\n");	
+	}
+
+	private String getCommandTahtArroundTheCoursor(int crsrPos)
+	{
+		String[] SQLs = txtSQL.getText().split(";");
+		int total = 0;
+		int i=0;
+		//int count = StringUtils.countMatches(txtSQL.getText(), ";");
+		for(; i<SQLs.length; i++)
+		{
+			total += SQLs[i].length()+1; 
+			if(total >= crsrPos)
+				break;
+		}
+		
+		String sql = SQLs[i].trim();
+		return sql;
+	}
+
+	private void selectThisInTheTxtSQL(final String sql)
+	{
+		int indexOfSql = txtSQL.getText().indexOf(sql);
+		txtSQL.selectRange(indexOfSql, indexOfSql + sql.length());
+	}
+	
+
+	private void cmbConnectionSetup()
+	{
+		cmbConnections.setCellFactory(p -> {
+            return new ListCell<Channel>()
+            {
+            	@Override
+            	protected void updateItem(Channel ch, boolean empty)
+            	{
+            		super.updateItem(ch, empty);
+            		ch = Optional.ofNullable(ch).orElse(new Channel());
+            		setText( ch.getName() );
+            	}
+            };
+         });
+		
+		/* Convert Object to String and String to Object. */
+		cmbConnections.setConverter(new StringConverter<Channel>()
+		{
+			@Override
+			public String toString(Channel ch)
+			{
+				if(ch == null) 
+					return null;
+				return ch.getName();
+			}
+			
+			//this is useful in case if ComboBox is Editable.
+			@Override
+			public Channel fromString(String str)
+			{
+				//looking for an object by String.
+			    return null;
+			}
+		});
+	
+	}//cmbConnectionSetup
+
+	private void appendRunItemToTheOriginalPopupMenuOfTxtSQL()
+	{
+		/*Append to the popup menu*/
+        TextAreaSkin customContextSkin = new TextAreaSkin(txtSQL) {
+            @Override
+            public void populateContextMenu(ContextMenu contextMenu) {
+                super.populateContextMenu(contextMenu);
+                MenuItem mntmRun = new MenuItem("Run");
+                mntmRun.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+                mntmRun.setOnAction( (e) -> mntmRun_click() );
+                contextMenu.getItems().add(0, mntmRun);
+                contextMenu.getItems().add(1, new SeparatorMenuItem());
+            }
+        };
+        txtSQL.setSkin(customContextSkin);
+	}
+
+}//end class 

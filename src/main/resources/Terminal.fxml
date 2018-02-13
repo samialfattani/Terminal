@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frawla.terminal.gui.TerminalController">
+<BorderPane fx:id="PanRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frawla.terminal.gui.TerminalController">
    <top>
       <VBox>
          <children>
@@ -100,7 +100,7 @@
         <items>
             <TextArea fx:id="txtSQL" prefHeight="99.0" prefWidth="598.0" promptText="Write SQL here...">
                <font>
-                  <Font name="Consolas Bold" size="14.0" />
+                  <Font name="Consolas Bold" size="16.0" />
                </font>
             </TextArea>
             <TableView fx:id="tblResult" />

@@ -1,5 +1,9 @@
-shabik v3.6.4.0 fix Lunch4j settings
+shabik v3.7.0.0 fix many Refactoring issues
 
-- Let Lunch4j to make the exe folder in the project folder.
-- fix bugs of FORWARD_ONLY mode. now you can connect to SQLite or any other DBMS of FORWARD_ONLY.
-- postgreSQL is added and tested.
+- fix reading null values from Database.
+- fix FX controller, no more special class for Stage() and Scene Configuration. now all these config can be done inside initialize() method of the FXController.
+- in TerminalController, refactor all complex methods and make more simple.
+- add Util.getRsourceAsURL()
+- IMPORTANT: fix the bug of refreshAllRecords() so that rs is re-assigened correctly.
+- IMPORTANT: now it can accept BLOB data, but currently it just replace it with "X". 
+- IMPORTANT: now record count is retrieved the actual value even if the DBMS is TYPE_FORWARD_ONLY, then an sql "select count(*) from..." is sent to get the actual value.

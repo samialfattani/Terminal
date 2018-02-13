@@ -13,8 +13,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -63,13 +65,19 @@ public class Util
   
 	public static URI getResource(String s)
 	{
-		URI uri =null;
 		try{
-			uri = Util.class.getClassLoader().getResource(s).toURI();
+			URI uri = Util.class.getClassLoader().getResource(s).toURI();
+			return uri;
 		}catch (URISyntaxException e){
 			Util.showError(e , e.getMessage());
 		}
-		return uri ;
+		return null ;
+	}
+
+	public static URL getResourceAsURL(String s)
+	{
+		URL url = Util.class.getClassLoader().getResource(s);
+		return url;
 	}
 
 	public static InputStream getResourceAsStream(String s)
@@ -293,6 +301,9 @@ public class Util
 		Object obj = null;
 		try
 		{
+			if(!f.exists())
+				return null;
+			
 			FileInputStream fileIn = new FileInputStream(f);
 			ObjectInputStream ois = new ObjectInputStream(fileIn);
 			obj = ois.readObject();

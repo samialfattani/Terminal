@@ -1,18 +1,18 @@
 package frawla.terminal.gui;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import frawla.terminal.core.Channel;
 import frawla.terminal.core.Util;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,44 +23,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-
-class Channels
-{
-	private FXMLLoader fxmlLoader;
-	private ChannelsController myController;
-	
-
-	public Channels(){		
-		try
-		{
-			fxmlLoader = new FXMLLoader(Util.getResource("Channels.fxml").toURL());			
-
-			BorderPane root = (BorderPane) fxmlLoader.load();
-			myController = (ChannelsController) fxmlLoader.getController();
-
-			Stage window = new Stage( );
-			window.setScene(new Scene(root, 700, 300));
-			window.getIcons().add(new Image(Util.getResource("images/icon.png").toString() ));
-			window.setTitle("Channels");
-			window.setOnCloseRequest(event -> myController.close() );
-			window.show();
-		}
-		catch (IOException e){
-			Util.showError(e, e.getMessage());
-		}            
-	}
-
-	public ChannelsController getMyController(){
-		return myController;
-	}
-}
-
 public class ChannelsController implements Initializable
 {
+	@FXML private Pane PanRoot;
 	@FXML private TextArea txtConnectionString;
 	@FXML private TextField txtChannelName;
 	@FXML private TextField txtUserName;
@@ -76,6 +45,20 @@ public class ChannelsController implements Initializable
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
+
+		//to be executed after initialize()
+		Platform.runLater(() -> {
+			Stage window = new Stage( );
+			Scene scene = new Scene(PanRoot, PanRoot.getPrefWidth(), PanRoot.getPrefHeight());
+			
+			window.setScene(scene);
+
+			window.getIcons().add(new Image( Util.getResource("images/icon.png").toString() ));
+			window.setTitle("Channels");
+			window.setOnCloseRequest(event -> close() );
+			window.show();
+		});        
+
 		cmbDBMS.getItems().addAll(Channel.getListOfDBMSs()); //
 		Image img ;
 		img = new Image(Util.getResourceAsStream("images/add.png"));
@@ -89,13 +72,12 @@ public class ChannelsController implements Initializable
 		img = new Image(Util.getResourceAsStream("images/down.png"));
 		btnDown.setGraphic(new ImageView(img));
 		
-		if (Util.CONNECTION_FILE.exists())
-		{
-			ArrayList<Channel> myList = (ArrayList<Channel>) Util.readFileAsObject(Util.CONNECTION_FILE); 
-			lstChannels
-				.getItems()
-				.setAll( FXCollections.observableList(myList) );
-		}
+		@SuppressWarnings("unchecked")
+		ArrayList<Channel> myList = (ArrayList<Channel>) Util.readFileAsObject(Util.CONNECTION_FILE);
+		myList = Optional.ofNullable(myList).orElse(new ArrayList<>());
+		lstChannels
+			.getItems()
+			.setAll( FXCollections.observableList(myList) );
 		
 		lstChannels.setCellFactory(new Callback<ListView<Channel>, ListCell<Channel>>() {
             @Override
@@ -151,12 +133,18 @@ public class ChannelsController implements Initializable
 	
 	public void close()
 	{
+		//ArrayList<Channel> myList = new ArrayList<Channel>(lstChannels.getItems()); 
+		//Util.Save(myList, Util.CONNECTION_FILE);
+		
+	}
+
+	public void btnOK_click() 
+	{
 		ArrayList<Channel> myList = new ArrayList<Channel>(lstChannels.getItems()); 
 		Util.Save(myList, Util.CONNECTION_FILE);
 		
 	}
-
-
+	
 	public void btnSample_click()
 	{
 		String dbms = cmbDBMS.getSelectionModel().getSelectedItem();

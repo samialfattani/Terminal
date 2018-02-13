@@ -1,8 +1,10 @@
 package frawla.terminal.test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +13,6 @@ import frawla.terminal.core.Util;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.JFXPanel;
-import sun.awt.SunToolkit.OperationTimedOut;
 
 public class GeneralTest
 {
@@ -66,4 +67,19 @@ public class GeneralTest
 		f.getParentFile().getParentFile().delete();
 	}	
 	
+	@Test
+	public void OptionalTest()
+	{
+		StringBuilder s = new StringBuilder("Hello");
+		
+		Optional<StringBuilder> os = Optional.ofNullable(s);		
+		os.get().append(" Sami");
+		
+		StringBuilder temp = os.get();
+		temp.append(" end");
+		
+		assertEquals("Hello Sami end", s.toString());
+		assertEquals("Hello Sami end", temp.toString());
+	}	
+
 }

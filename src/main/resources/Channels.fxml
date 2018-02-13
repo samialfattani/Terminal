@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="683.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frawla.terminal.gui.ChannelsController">
+<BorderPane fx:id="PanRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="309.0" prefWidth="683.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frawla.terminal.gui.ChannelsController">
    <left>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -35,6 +35,7 @@
    <center>
       <AnchorPane BorderPane.alignment="CENTER">
          <children>
+            <Button fx:id="btnOK" layoutX="421.0" layoutY="271.0" mnemonicParsing="false" onAction="#btnOK_click" prefHeight="31.0" prefWidth="68.0" text="OK" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="14.0" />
             <Label layoutX="14.0" layoutY="26.0" text="Channel Name: ">
                <font>
                   <Font name="Consolas Bold" size="14.0" />
